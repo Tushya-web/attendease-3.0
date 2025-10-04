@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Face Add | AttendEase{% endblock %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Verification Interface</title>
+    <style>
+        /* Root colors */
+        :root {
+            --primary-purple: #6C5CE7;
+            --secondary-purple: #A29BFE;
+            --accent-green: #00B894;
+            --secondary-green: #55EFC4;
+            --cancel-red: #D32F2F; 
+            --cancel-red-secondary: #FF5722; 
+
+            --background-light-gray: #F8F9FA;
+            --canvas-placeholder-gray: #e5e7eb;
+            --text-dark: #333;
+            --text-footer: #888;
+        }
+
+        /* Global */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #F8F9FA;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        /* Main card */
+        #verification-card {
+            background-color: #fff;
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 1px solid #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Top Title */
+        #verification-card h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-purple);
+            margin: 0;
+        }
+
+        /* Username display */
+        #verification-card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Divider */
+        #verification-card hr {
+            border: 0;
+            height: 1px;
+            background-color: #f3f4f6;
+            margin: 0.5rem 0;
+        }
+
+        /* Camera Canvas */
+        #camera-canvas {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #e5e7eb;
+            border-radius: 12px;
+            border: 2px solid #d1d5db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .canvas-placeholder-text {
+            pointer-events: none;
+            user-select: none;
+            color: #6b7280;
+            font-weight: 500;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Status Text */
+        #status-text {
+            text-align: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: -0.5rem;
+        }
+
+        /* Buttons Container */
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Buttons */
+        button {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            color: #fff;
+        }
+
+        button:hover:not(:disabled) {
+            transform: scale(1.03);
+            opacity: 0.9;
+        }
+
+        /* Verify Button */
+        #capture-btn {
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+            box-shadow: 0 8px 20px rgba(108,92,231,0.3);
+        }
+
+        /* Submit Button */
+        #submit-btn {
+            background: linear-gradient(135deg, var(--accent-green), var(--secondary-green));
+            box-shadow: 0 8px 20px rgba(0,184,148,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+ #cancel-btn {
+            width: 100%;
+            background-image: linear-gradient(to right, var(--cancel-red), var(--cancel-red-secondary));
+            box-shadow: 0 10px 15px -3px rgba(211, 47, 47, 0.3), 0 4px 6px -4px rgba(211, 47, 47, 0.3);
+            margin-top: 0.5rem; /* Space above the button */
+            margin-bottom: 1rem; /* Space before footer */
+        }
+        
+        /* Hover Effects */
+        .buttons-section button:not([disabled]):hover, #cancel-btn:not([disabled]):hover {
+            transform: scale(1.03);
+            opacity: 0.90;
+        }
+
+        /* Disabled State */
+        .buttons-section button[disabled], #cancel-btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+         /* Status text color utilities (for JS updates) */
+        .text-primary-purple { color: var(--primary-purple); }
+        .text-accent-green { color: var(--accent-green); }
+        .text-gray-500 { color: #9ca3af; }
+        .text-red-600 { color: var(--cancel-red); } /* New status color for cancel */
+
+
+        /* Footer Text */
+        #verification-card p.footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #888;
+            margin: 0;
+        }
+
+           /* Media Query for smaller screens */
+        @media (max-width: 640px) {
+            #verification-card {
+                padding: 1.5rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<div id="verification-card">
+    <h1>Update Face</h1>
+    <h2>👤 Username: <span>{{ user.username }}</span></h2>
+    <hr>
+
+    <!-- Show old face -->
+    {% if old_face %}
+        <p>Old Face:</p>
+        <img src="{{ old_face }}" style="width:100%; border-radius:12px; border:2px solid #6C5CE7; margin-bottom:10px;">
+    {% endif %}
+
+    {% if pending_face %}
+        <p style="color:orange; font-weight:bold;">Pending admin approval</p>
+        <img src="{{ pending_face }}" style="width:100%; border-radius:12px; border:2px solid orange; margin-bottom:10px;">
+        <button disabled>📸 Capture Disabled</button>
+    {% else %}
+        <div id="camera-canvas">
+            <canvas id="video-canvas" width="400" height="300"></canvas>
+        </div>
+        <p id="status-text">Align your face and click capture</p>
+        <div class="btn-container">
+            <button id="capture-btn">📸 Capture</button>
+            <button id="submit-btn" disabled>✅ Submit</button>
+        </div>
+    {% endif %}
+
+    <form action="{% url 'userdash' %}" method="post">
+        {% csrf_token %}
+        <button id="cancel-btn" type="submit">⬅️ Back</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    {% if not pending_face %}
+    const videoCanvas = document.getElementById('video-canvas');
+    const ctx = videoCanvas.getContext('2d');
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.playsInline = true;
+
+    const statusText = document.getElementById('status-text');
+    const captureBtn = document.getElementById('capture-btn');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Init camera
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+            video.srcObject = stream;
+            await video.play();
+            videoCanvas.width = video.videoWidth;
+            videoCanvas.height = video.videoHeight;
+            requestAnimationFrame(drawVideoFrame);
+        } catch (err) {
+            statusText.textContent = "Cannot access webcam";
+        }
+    }
+
+    function drawVideoFrame() {
+        ctx.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
+        requestAnimationFrame(drawVideoFrame);
+    }
+
+    function getCroppedFace() {
+        const size = Math.min(videoCanvas.width, videoCanvas.height) / 2;
+        const x = videoCanvas.width / 2 - size / 2;
+        const y = videoCanvas.height / 2 - size / 2;
+        const faceCanvas = document.createElement('canvas');
+        faceCanvas.width = size;
+        faceCanvas.height = size;
+        faceCanvas.getContext('2d').drawImage(videoCanvas, x, y, size, size, 0, 0, size, size);
+        return faceCanvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    captureBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const imageData = getCroppedFace();
+        localStorage.setItem('new_face', imageData);
+        submitBtn.disabled = false;
+        statusText.textContent = "Face captured! Click submit to send for approval.";
+    });
+
+    submitBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const imageData = localStorage.getItem('new_face');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const res = await fetch("{% url 'face_add' %}", {
+            method: "POST",
+            headers: {"Content-Type":"application/json", "X-CSRFToken": csrfToken},
+            body: JSON.stringify({image_data: imageData})
+        });
+
+        const data = await res.json();
+        if(data.status === "success"){
+            statusText.textContent = "Face submitted for admin approval!";
+            captureBtn.disabled = true;
+            submitBtn.disabled = true;
+        } else {
+            statusText.textContent = data.message || "Error, try again";
+        }
+    });
+
+    initCamera();
+    {% endif %}
+});
+</script>
+</body>
+</html>
+
+{%endblock%}

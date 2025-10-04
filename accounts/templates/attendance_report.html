@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attendance Report | AttendEase{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Report</title>
+  <style rel="stylesheet" href="{% static 'style.css' %}">
+  <style>
+    :root {
+      --primary-purple: #6C5CE7; /* Main purple */
+      --secondary-purple: #A29BFE; /* Light purple */
+      --bg-light: #f4f6f9;
+      --text-dark: #333;
+    }
+    
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg-light);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 10px rgba(108, 92, 231, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--primary-purple);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    table th {
+      background: var(--primary-purple);
+      color: white;
+      font-size: 15px;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #fafaff;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .bg-success {
+      background-color: var(--secondary-purple);
+      color: white;
+    }
+
+    .bg-danger {
+      background-color: #ff7675;
+      color: white;
+    }
+
+    .bg-late {
+      background-color: #fdcb6e;
+      color: #333;
+    }
+
+    .no-records {
+      text-align: center;
+      color: #777;
+      font-style: italic;
+    }
+   
+  </style>
+</head>
+<body>
+    <button class="go-back-btn" onclick="window.location.href='{% url 'userdash' %}'">  
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><path fill="none" stroke="#ffffff" stroke-linejoin="round" stroke-width="4" d="M44 40.836c-4.893-5.973-9.238-9.362-13.036-10.168c-3.797-.805-7.412-.927-10.846-.365V41L4 23.545L20.118 7v10.167c6.349.05 11.746 2.328 16.192 6.833c4.445 4.505 7.009 10.117 7.69 16.836Z" clip-rule="evenodd"/></svg>
+    </button>
+
+  <div class="container">
+    <h2>📊 Attendance Report</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Date</th>
+          <th>Check-In</th>
+          <th>Check-Out</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        <tr>
+          <td>{{ record.user.username }}</td>
+          <td>{{ record.date|date:"Y-m-d" }}</td>
+          <td>{{ record.check_in|default:"-"|time:"H:i:s" }}</td>
+          <td>{{ record.check_out|default:"-"|time:"H:i:s" }}</td>
+          <td>
+            {% if record.check_in and record.check_out %}
+              <span class="badge bg-success">Present (Checked Out)</span>
+            {% elif record.check_in %}
+              <span class="badge bg-warning text-dark">Checked In</span>
+            {% else %}
+              <span class="badge bg-danger">Absent</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="no-records">No attendance records available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <a href="{% url 'download_attendance_csv' %}" class="btn btn-primary" style="margin: 10px 0;">
+    ⬇️ Download Attendance (CSV)
+</a>
+
+</body>
+</html>
+{% endblock %}

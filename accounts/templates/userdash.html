@@ -1,0 +1,1156 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}AttendEase | User Dashboard{% endblock %}
+{% block content %}
+
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+
+<style>
+
+.greet{
+  font-weight:800;
+  font-size:40px;
+  color: #8E0DFF;
+  background-image: linear-gradient(45deg, #8E0DFF 33%, #D745FF 56%, #6a1a9b 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-family: 'Roboto';
+}
+
+.login_icon
+{
+    position: absolute;
+    z-index:99999; 
+    background-color: #ffffffff;
+    border-radius: 15pt;
+    padding: 9px;
+    display: flex;
+    right: 76px;
+    {% comment %} top: 100px; {% endcomment %}
+    width: 200px;
+    height: 100px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-shadow: 2px 3px 5px 3px #cccccc;
+      position: absolute;
+  top: -200px; /* start off-screen */
+  opacity: 0;
+  transition: top 0.5s ease, opacity 0.5s ease;
+
+}
+
+.login_icon.show {
+  top: 100px; /* original position */
+  opacity: 1;
+}
+
+
+.playstore-button {
+  font-family: inherit;
+  font-size: 20px;
+  background:rgba(255, 255, 255, 1);
+  color: white;
+  padding: 0.7em 1em;
+  padding-left: 0.9em;
+  display: flex;
+  align-items: center;
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none; /* Add this to remove the underline from the link */
+}
+
+.playstore-button .text-2 {
+  display: block;
+  color: rgb(21, 21, 100);
+  margin-left: 0.3em;
+  transition: all 0.3s ease-in-out;
+}
+
+.playstore-button img {
+  display: block;
+  transform-origin: center center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.playstore-button:hover .img-wrapper {
+  animation: fly-1 0.6s ease-in-out infinite alternate;
+}
+
+.playstore-button:hover img {
+  transform: translateX(2.5em) scale(1.3);
+}
+
+.playstore-button:hover .text-2 {
+  transform: translateX(8em);
+}
+
+.playstore-button:active   {
+  background-color: rgba(170, 51, 255, 1);
+  transform: scale(0.95);
+}
+
+.icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.text-2 {
+  font-weight: 600;
+}
+
+
+nav {
+    z-index:1;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    height: 80px;
+    background-color: white;  
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 2px 2px 10px rgba(0, 0,0, 0.15);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+ 
+.imgl{
+    width: 210px;
+    height: 55px;
+    cursor: pointer;
+}
+
+nav .navigation ul{
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+   
+}
+nav .navigation ul li{
+    list-style: none;
+    margin-right: 30px;
+}
+
+
+nav .navigation ul li a{
+    text-decoration: none;
+    color: rgb(21, 21, 100);
+    font-size: 18px;
+    font-weight: 700;
+    transition: 0.3s ease;
+}
+nav .navigation ul li a.active{
+    color: rgb(101, 29, 255);
+}
+nav .navigation ul li a:hover{
+     color: rgb(101, 29, 255);
+}
+
+
+.Btn {
+  margin-top:8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: .3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+  background-color: rgb(255, 65, 65);
+}
+
+/* plus sign */
+.sign {
+  width: 100%;
+  padding:9px;
+  transition-duration: .3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign svg {
+  width: 17px;
+}
+
+.sign svg path {
+  fill: white;
+}
+/* text */
+.text {
+  position: relative;   /* remove absolute */
+  margin-left: 8px;     /* add gap between svg and text */
+  width: auto;          /* let it resize naturally */
+  opacity: 0;
+  color: white;
+  font-size: 1.2em;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+/* hover effect on button width */
+.Btn:hover {
+  width: 125px;
+  border-radius: 40px;
+  transition-duration: .3s;
+  box-shadow: 1px 1px 13px 1px red;;
+}
+
+.Btn:hover .sign {
+  width: 30%;
+  transition-duration: .3s;
+  padding-left: 20px;
+}
+/* hover effect button's text */
+.Btn:hover .text {
+  opacity: 1;
+  width: auto;          /* auto instead of fixed 70% */
+  padding-right: 10px;
+}
+/* button click effect*/
+.Btn:active {
+  transform: translate(2px ,2px);
+}
+
+.profile-btn {
+    margin-top:5px;
+    padding:5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition-duration: .3s;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+    background-color: rgb(0, 153, 255);
+  }
+
+  /* profile icon */
+  .profile-icon {
+    width: 100%;
+    transition-duration: .3s;
+    padding:8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .profile-icon svg {
+    width: 17px;
+  }
+
+  .profile-icon svg path {
+    fill: white;
+  }
+  /* text */
+  .profile-text {
+    position: absolute;
+    right: 0%;
+    width: 0%;
+    opacity: 0;
+    color: white;
+    font-size: 1.2em;
+    font-weight: 600;
+    transition-duration: .3s;
+  }
+  /* hover effect on button width */
+  .profile-btn:hover {
+    width: 125px;
+    border-radius: 40px;
+    transition-duration: .3s;
+    box-shadow: 1px 1px 14px 1px rgba(0, 140, 234, 1);
+  
+  }
+
+  .profile-btn:hover .profile-icon {
+    width: 30%;
+    transition-duration: .3s;
+  }
+
+  /* hover effect button's text */
+  .profile-btn:hover .profile-text {
+    opacity: 1;
+    width: 70%;
+    transition-duration: .3s;
+    padding-right: 10px;
+    padding-left: 25px;
+  }
+  /* button click effect*/
+  .profile-btn:active {
+    transform: translate(2px ,2px);
+  } 
+  :root {
+            /* Color Palette */
+            --color-primary: #6C5CE7; /* Main Purple */
+            --color-primary-light: #A29BFE;
+            --color-primary-dark: #513BBE;
+            --color-gradient-start: #8e44ad;
+            --color-gradient-end: #9b59b6;
+            --color-background: #f4f6f8;
+            --color-card-background: #ffffff;
+            --color-text-dark: #333333;
+            --color-text-light: #ffffff;
+            --color-text-gray: #6c757d;
+            --color-light-purple-bg: #f9f7ff; /* New subtle background color for summary cards */
+
+            /* Status Colors */
+            --color-present: #2ecc71; /* Green */
+            --color-absent: #e74c3c; /* Red */
+            --color-late: #f1c40f; /* Yellow */
+
+            /* Shadow */
+            --shadow-subtle: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --shadow-deep: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --shadow-bolder: 0 15px 35px rgba(108, 92, 231, 0.2); /* Extra shadow for differentiation */
+
+            /* Spacing */
+            --spacing-large: 2rem;
+            --spacing-medium: 1.5rem;
+            --spacing-small: 1rem;
+
+            /* Border Radius */
+            --radius-card: 20px;
+            --radius-element: 10px;
+        }
+
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffffff;;
+            color: var(--color-text-dark);
+
+        }
+
+        /* Dashboard Container - Max width for desktop, uses CSS Grid for main layout */
+        .dashboard-container {
+            width: 100%;
+            display: grid;
+            gap: var(--spacing-medium);
+        }
+
+        /* Utility Card Styling */
+        .card {
+            background-color: var(--color-card-background);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-subtle);
+            padding: var(--spacing-medium);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Hover effect for interactive/data cards */
+        .card:hover:not(.welcome-card):not(.calendar-card):not(.chart-card):not(.summary-card) {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-deep);
+        }
+
+        .card h3 {
+            font-weight: 600;
+            margin-bottom: var(--spacing-small);
+            color: var(--color-primary-dark);
+        }
+
+        /* --- 1. Welcome Banner --- */
+        .welcome-card {
+            grid-column: 1 / -1; /* Spans the full width of the grid */
+            background: linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-end));
+            color: var(--color-text-light);
+            padding: var(--spacing-large);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .welcome-card::before {
+            /* Playful AI/Attendance Icon Illustration */
+            content: '🤖';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            font-size: 180px;
+            opacity: 0.1;
+            line-height: 1;
+            transform: rotate(-15deg);
+        }
+
+        .welcome-info h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-info p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .today-status {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-element);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        /* --- 3. Attendance Summary Cards --- */
+        .summary-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-medium);
+        }
+
+        .summary-card {
+            padding: var(--spacing-medium);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* Enhanced styling for differentiation */
+            background: linear-gradient(145deg, var(--color-card-background), var(--color-light-purple-bg)); /* Subtle light purple gradient */
+            box-shadow: var(--shadow-bolder); /* Use custom bolder shadow */
+            border: 1px solid var(--color-primary-light); /* Add a soft purple border */
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px); /* Stronger lift on hover */
+            box-shadow: 0 20px 45px rgba(108, 92, 231, 0.3);
+        }
+
+        .summary-card .value {
+            font-size: 2.2rem; /* Increased size (from 1.8rem) */
+            font-weight: 800; /* Made bolder */
+            color: var(--color-primary-dark);
+            line-height: 1.2;
+        }
+
+        .summary-card .label {
+            font-size: 1.05rem; /* Increased size (from 0.9rem) */
+            color: var(--color-text-gray);
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        /* Overall Attendance % with Circular Progress Bar */
+        .overall-percent-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 0.5rem;
+        }
+
+        .progress-circle-container {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            margin-left: var(--spacing-small);
+        }
+
+        .progress-circle-container .percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem; /* Increased size (from 0.85rem) */
+            font-weight: 700;
+            color: var(--color-primary-dark);
+        }
+
+        .progress-circle-container svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle-container circle {
+            fill: none;
+            stroke-width: 4;
+            /* Circumference of r=32 is approx 201 */
+            stroke-dasharray: 201;
+        }
+
+        .progress-bg {
+            stroke: #e0e0e0;
+        }
+
+        .progress-bar {
+            stroke: var(--color-primary);
+            transition: stroke-dashoffset 0.5s ease;
+            stroke-linecap: round;
+            /* 91% progress calculation: 201 * (1 - 0.91) = 18.09 */
+            stroke-dashoffset: 18.09;
+        }
+
+        /* --- 2. Quick Action Cards (Main Grid) - Positioned centrally for flow --- */
+        .quick-actions-grid {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-medium);
+        }
+
+        .quick-action-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing-medium);
+            cursor: pointer;
+        }
+
+        .quick-action-icon {
+            font-size: 1.8rem;
+            /* Icon background with gradient and deep shadow */
+            background: linear-gradient(45deg, var(--color-primary-light), var(--color-primary));
+            color: var(--color-text-light);
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            transition: transform 0.1s;
+        }
+
+        .quick-action-card:hover .quick-action-icon {
+            transform: scale(1.05);
+        }
+
+        .quick-action-card p {
+            font-weight: 500;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+        /* --- 4 & 6. Calendar and Notifications Layout --- */
+        .mid-section-grid {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 2.5fr 1fr;
+            gap: var(--spacing-medium);
+        }
+
+        /* --- 4. Calendar Section --- */
+        .calendar-card {
+            min-height: 400px;
+            background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
+            color: var(--color-text-light);
+            padding: var(--spacing-medium);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-small);
+        }
+
+        .calendar-header h3 {
+            color: var(--color-text-light);
+            margin-bottom: 0;
+        }
+
+        .calendar-nav-button {
+            background: none;
+            border: none;
+            color: var(--color-text-light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.1s;
+        }
+        .calendar-nav-button:hover {
+            opacity: 1;
+        }
+
+        .calendar-grid {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-element);
+            padding: 5px;
+        }
+
+        .day-name {
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 8px 0;
+            text-transform: uppercase;
+        }
+
+        .day-cell {
+            padding: 10px 0;
+            border-radius: var(--radius-element);
+            font-weight: 500;
+            font-size: 0.85rem;
+            position: relative;
+            cursor: default;
+            transition: background-color 0.1s;
+        }
+
+        /* Status colors on the calendar day background */
+        .status-present { background-color: var(--color-present); }
+        .status-absent { background-color: var(--color-absent); }
+        .status-late { background-color: var(--color-late); color: var(--color-text-dark); }
+        
+        .day-cell.today {
+            border: 2px solid var(--color-text-light);
+        }
+
+        .day-cell:not([data-details]):not(.today) {
+            color: rgba(255, 255, 255, 0.6); /* Days without status */
+        }
+        .day-cell.status-late:not(.today) {
+             color: var(--color-text-dark); /* Ensure yellow text is readable */
+        }
+        .day-cell:hover {
+            opacity: 0.9;
+        }
+
+        /* Hover Tooltip for details */
+        .day-cell[data-details]:hover::after {
+            content: attr(data-details);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-text-dark);
+            color: var(--color-text-light);
+            padding: 6px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+            z-index: 10;
+            box-shadow: var(--shadow-deep);
+        }
+
+        /* --- 6. Notifications & Notices --- */
+        .notification-card {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-list {
+            padding-right: 5px; /* space for scrollbar on desktop */
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            font-size: 1.2rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.late { color: var(--color-late); }
+        .notification-icon.approved { color: var(--color-present); }
+        .notification-icon.success { color: var(--color-primary); }
+
+        .see-more {
+            display: block;
+            text-align: center;
+            padding-top: 1rem;
+            color: var(--color-primary);
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* --- 5. Analytics / Charts Section --- */
+        .chart-card {
+            grid-column: 1 / -1;
+            min-height: 350px;
+            padding: var(--spacing-large);
+            position: relative;
+        }
+
+        .chart-card h3 {
+            margin-bottom: var(--spacing-large);
+        }
+
+        /* Chart Placeholder - Pure CSS Bar Chart */
+        .chart-placeholder {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-bottom: 2px solid #eee;
+        }
+
+        .chart-bar-container {
+            width: 10%;
+            text-align: center;
+        }
+
+        .chart-bar {
+            width: 100%;
+            height: 0; /* Initial height */
+            background: linear-gradient(to top, var(--color-primary-light), var(--color-primary));
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            box-shadow: 0 -3px 8px rgba(108, 92, 231, 0.3);
+            transition: height 1.5s ease-out; /* Smooth growth animation */
+        }
+        
+        .chart-label {
+            font-size: 0.75rem;
+            color: var(--color-text-gray);
+            margin-top: 8px;
+        }
+
+        /* Setting Bar Heights with pseudo-animation (real JS would update this) */
+        .bar-height-75 { height: 75%; }
+        .bar-height-50 { height: 50%; }
+        .bar-height-90 { height: 90%; }
+        .bar-height-65 { height: 65%; }
+        .bar-height-80 { height: 80%; }
+        .bar-height-40 { height: 40%; }
+        .bar-height-70 { height: 70%; }
+
+
+        /* --- 7. Footer Quick Actions --- */
+        .footer-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-medium);
+            padding: var(--spacing-small) 0;
+        }
+
+        .footer-button {
+            background: linear-gradient(45deg, var(--color-primary), var(--color-primary-light));
+            color: var(--color-text-light);
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-button span {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .quick-actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .mid-section-grid {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-container {
+                width: 98%;
+                max-width: 100%;
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .summary-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .welcome-card {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+                padding: var(--spacing-medium);
+            }
+            .welcome-info {
+                 z-index: 1; /* Keep text above the background illustration */
+            }
+            .today-status {
+                margin-top: var(--spacing-small);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .summary-row {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-actions {
+                flex-direction: column;
+                gap: 10px;
+                padding: 0 var(--spacing-small) var(--spacing-medium);
+            }
+            .footer-button {
+                width: 100%;
+                justify-content: center;
+            }
+            .chart-card, .calendar-card {
+                padding: var(--spacing-medium);
+            }
+            .chart-bar-container {
+                width: 12%;
+            }
+        }
+
+        .video {
+    background-color: rgb(255, 255, 255);
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+}
+
+.calendar-card {
+    min-height: 400px;
+    background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
+    color: var(--color-text-light);
+    padding: var(--spacing-medium);
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-grid {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-element);
+    padding: 5px;
+}
+
+.day-name { font-weight: 500; font-size: 0.8rem; color: rgba(255,255,255,0.7); padding: 8px 0; }
+.day-cell { padding: 10px 0; border-radius: var(--radius-element); font-weight: 500; font-size: 0.85rem; }
+.day-cell.today { border: 2px solid var(--color-text-light); }
+</style>
+
+    <nav>
+        <img src="{% static 'AttendEase.png' %}" class="imgl" alt="logo">
+        <div class="navigation">
+            <ul>   
+                <li><a class="active" href="{% url 'home' %}">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Attendance</a></li>
+                {% comment %} <li><a href="{% url 'admin:index' %}">Administrator</a></li>
+                <li><a href="{% url 'register' %}">Sign Up</a></li>{% endcomment %}
+                <li>
+              <a class="playstore-button" href="#">
+              <span class="img-wrapper">
+              <img src="{% static 'icons8-profile-48.png' %}" alt="profile" width="30" height="30">
+              </span>
+              
+              <span class="text-2">{{user.username}}</span>
+              </span>
+              </a>
+                </li>
+              
+              <div class="login_icon">
+                
+                <div>
+                  <button class="profile-btn" onclick="window.location.href='{% url 'userprofile' %}'">
+                  <div class="profile-icon">
+                    <svg viewBox="0 0 448 512">
+                      <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
+                    </svg>
+                  </div>
+                  <div class="profile-text">Profile</div>
+                </button>
+                  
+                  <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                  <button class="Btn" onclick="return confirm('Are you sure you want to logout?');">
+                    <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+                    </form>
+                    <div class="text"> Logout</div>
+                    </button>
+
+                  </div>
+                </div> 
+        </div>
+    </nav>
+
+    <br><br><br><br><br>
+ <div class="dashboard-container">
+
+        <!-- 1. Welcome Banner (Top Card) -->
+        <div class="card welcome-card">
+            <div class="welcome-info">
+                <p id="current-date"></p>
+                <h1>Welcome, {{user.username}}!</h1>
+                <p>Stay updated with your attendance status.</p>
+                <div class="today-status">➡️ Checked-in at 9:05 AM</div>
+                <div class="today-status">⬅️ Checked-out at 9:05 AM</div>
+            </div>
+        </div>
+
+        <!-- 3. Attendance Summary Cards (Statistics Row) -->
+        <div class="summary-row">
+            <div class="card summary-card">
+                <div class="value">20/22</div>
+                <div class="label">Total Days Present</div>
+            </div>
+            <div class="card summary-card">
+                <div class="value">2</div>
+                <div class="label">Total Absences</div>
+            </div>
+            <div class="card summary-card">
+                <div class="value">3</div>
+                <div class="label">Late Arrivals</div>
+            </div>
+            <div class="card summary-card">
+                <div class="label">Overall Attendance %</div>
+                <div class="overall-percent-content">
+                    <div class="value">90.9%</div>
+                    <div class="progress-circle-container">
+                        <div class="percentage">91%</div>
+                        <svg width="70" height="70" viewBox="0 0 70 70">
+                            <circle cx="35" cy="35" r="32" class="progress-bg"></circle>
+                            <!-- stroke-dashoffset: 18.09 is for 91% -->
+                            <circle cx="35" cy="35" r="32" class="progress-bar"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Quick Action Cards (Main Grid) -->
+        <div class="quick-actions-grid">
+            <div class="card quick-action-card" onclick="window.location.href='{% url 'face_add' %}'">
+                <div class="quick-action-icon">➕</div>
+                <p>Add Face</p>
+            </div>
+            <div class="card quick-action-card" onclick="window.location.href='{% url 'face_scan' %}'">
+                <div class="quick-action-icon">📸</div>
+                <p>Take Attendance</p>
+            </div>
+            <div class="card quick-action-card" onclick="window.location.href='{% url 'face_view'%}'">
+                <div class="quick-action-icon">👀</div>
+                <p>View My Faces</p>
+            </div>
+            <div class="card quick-action-card" onclick="window.location.href='{% url 'attendance_report' %}'">
+                <div class="quick-action-icon">📊</div>
+                <p>Attendance Report</p>
+            </div>
+            <div class="card quick-action-card" onclick="window.location.href='{%url 'leave_request'%}'">
+                <div class="quick-action-icon">🗓</div>
+                <p>Leave Request</p>
+            </div>
+            <div class="card quick-action-card">
+                <div class="quick-action-icon">⏰</div>
+                <p>Check In / Check Out</p>
+            </div>
+            <div class="card quick-action-card">
+                <div class="quick-action-icon">📝</div>
+                <p>Profile Update</p>
+            </div>
+            <div class="card quick-action-card">
+                <div class="quick-action-icon">🔔</div>
+                <p>Notifications</p>
+            </div>
+        </div>
+
+    <div class="mid-section-grid">
+
+    <!-- 4. Calendar Card -->
+    <div class="card calendar-card">
+        <div class="calendar-header">
+        <button class="calendar-nav-button" id="prev-month">&lt;</button>
+        <h3 id="calendar-month-year">{{ cal_month_name }} {{ cal_year }}</h3>
+        <button class="calendar-nav-button" id="next-month">&gt;</button>
+    </div>
+    
+    <div id="calendar-grid" class="calendar-grid">
+    <!-- Calendar Days -->
+    {% include "calendar_cells.html" %}
+    </div>
+</div>
+
+    <!-- 6. Notifications Card -->
+    <div class="card notification-card">
+        <h3>Notifications & Notices</h3>
+        <div class="notification-list">
+            <div class="notification-item">
+                <span class="notification-icon late">⚠️</span>
+                <span>You were **late** on Sept 13 (Checked in at 9:20 AM).</span>
+            </div>
+            <div class="notification-item">
+                <span class="notification-icon approved">✅</span>
+                <span>**Leave approved** for Sept 20 (Personal).</span>
+            </div>
+            <div class="notification-item">
+                <span class="notification-icon success">👤</span>
+                <span>New face enrolled successfully. Welcome aboard!</span>
+            </div>
+        </div>
+        <div class="see-more">See More (5 total unread)</div>
+    </div>
+
+</div>
+
+
+        <!-- 5. Analytics / Charts Section (Bottom) -->
+        <div class="card chart-card">
+            <h3>Weekly Check-in Time Trends</h3>
+            <div class="chart-placeholder">
+                <!-- Using a simple JS logic to apply initial heights on load -->
+                <div class="chart-bar-container">
+                    <div class="chart-bar bar-height-75" data-height="75"></div>
+                    <div class="chart-label">Mon</div>
+                </div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar bar-height-50" data-height="50"></div>
+                    <div class="chart-label">Tue</div>
+                </div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar bar-height-90" data-height="90"></div>
+                    <div class="chart-label">Wed</div>
+                </div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar bar-height-65" data-height="65"></div>
+                    <div class="chart-label">Thu</div>
+                </div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar bar-height-80" data-height="80"></div>
+                    <div class="chart-label">Fri</div>
+                </div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar bar-height-40" data-height="40"></div>
+                    <div class="chart-label">Sat</div>
+                </div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar bar-height-70" data-height="70"></div>
+                    <div class="chart-label">Sun</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Footer Quick Actions (Bottom Row) -->
+        <div class="footer-actions">
+            <a href="#" class="footer-button"><span>⬇️</span> Download Report</a>
+            <a href="#" class="footer-button"><span>📧</span> Contact Admin</a>
+            <a href="#" class="footer-button" onclick="window.location.href='{% url 'help_support'%}'"><span>ℹ️</span> Help & Support</a>
+        </div>
+
+<div id="load" class="video">
+
+  <video 
+         style="width: 130px; height: auto; border-radius: 10px;" 
+         class="video" 
+         src="{% static 'Untitled video - Made with Clipchamp (2) (online-video-cutter.com).mp4' %}" 
+         autoplay loop muted>
+  </video>
+</div>
+
+
+
+  <script>
+
+    window.onload = function () {
+      setTimeout(() => {
+        document.getElementById('load').style.display = 'none'
+      }, 2000)
+    }
+
+  document.querySelector('.playstore-button').addEventListener('click', function(e) {
+    e.preventDefault(); // prevent default link behavior
+    document.querySelector('.login_icon').classList.toggle('show');
+  });
+
+         document.addEventListener('DOMContentLoaded', () => {
+            const dateElement = document.getElementById('current-date');
+            if (dateElement) {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                dateElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        });
+
+
+        let currentMonth = {{ cal_month }};
+let currentYear = {{ cal_year }};
+
+document.getElementById('prev-month').addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 1) {
+        currentMonth = 12;
+        currentYear--;
+    }
+    loadCalendar(currentMonth, currentYear);
+});
+
+document.getElementById('next-month').addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 12) {
+        currentMonth = 1;
+        currentYear++;
+    }
+    loadCalendar(currentMonth, currentYear);
+});
+
+function loadCalendar(month, year) {
+    fetch(`/accounts/userdash/?month=${month}&year=${year}&ajax=1`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('calendar-grid').innerHTML = html;
+            document.getElementById('calendar-month-year').textContent = `${getMonthName(month)} ${year}`;
+        });
+}
+
+function getMonthName(month) {
+    const names = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    return names[month-1];
+}
+  </script>
+
+
+{% endblock %}

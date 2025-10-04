@@ -1,0 +1,683 @@
+{%extends 'base.html'%}
+{%load static %}
+{% block title %}AttendEase | User Profile{% endblock %}
+{%block content%}
+
+  {% comment %} <link rel="stylesheet" href="{% static 'style.css' %}"> {% endcomment %}
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+    <!-- Load Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Variables --- */
+
+        :root {
+            --primary-purple: #794BC4; /* Deep Modern Purple */
+            --accent-purple: #9C27B0; /* Brighter Purple */
+            --text-color: #333333;
+            --background-neutral: #F4F6F8;
+            --card-background: #ffffff;
+            --input-bg: #FAFAFA;
+            --success-color: #10B981; /* Emerald */
+            --error-color: #EF4444; /* Red */
+        }
+        
+           .go-back-btn {
+    display: inline-block;
+    padding: 12px 17px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #6a0dad;
+    border: none;
+    border-radius: 55px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .go-back-btn:hover {
+      background-color: #a13dffff; /* Lighter purple on hover */
+      transform: scale(1.1); /* Slight zoom effect */
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .go-back-btn:active {
+      transform: scale(0.95); /* Pressed effect */
+    }
+
+        /* --- Base & Typography --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-neutral);
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        h1, h2, h3 {
+            color: var(--text-color);
+        }
+
+        /* Smooth transition for hover effects */
+        * {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-background);
+            padding: 40px;
+        }
+        
+        /* --- Notification Banner --- */
+        #notification-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            z-index: 50;
+            text-align: center;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #notification-banner.visible {
+            transform: translateY(0);
+        }
+
+        #notification-message {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 0.75rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-weight: 500;
+        }
+
+        .success { background-color: var(--success-color); }
+        .error { background-color: var(--error-color); }
+
+        /* --- Profile Header --- */
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb; /* gray-100 */
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .avatar {
+            width: 112px; /* 28 * 4 */
+            height: 112px;
+            border-radius: 50%;
+            border: 4px solid var(--primary-purple);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+        /* Removed .edit-avatar-btn and related hover styles */
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .profile-email {
+            font-size: 1.125rem;
+            color: #6b7280; /* gray-500 */
+        }
+
+        /* --- Main Content Grid (Desktop) --- */
+        .main-content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        /* --- Forms & Security Sections --- */
+        .card-section {
+            background-color: var(--input-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .section-title i { margin-right: 0.5rem; }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563; /* gray-700 */
+            margin-bottom: 0.25rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-purple);
+            outline: none;
+            box-shadow: 0 0 0 1px var(--primary-purple);
+        }
+
+        .form-input.readonly {
+            background-color: #f3f4f6; /* gray-100 */
+            cursor: not-allowed;
+        }
+
+        .input-validation {
+            color: var(--error-color);
+            font-size: 0.75rem;
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(5px); /* Adjusted for label margin */
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #9ca3af; /* gray-400 */
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--primary-purple);
+        }
+        
+        .save-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-purple);
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .save-btn:hover {
+            background-color: var(--accent-purple);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: scale(1.01);
+        }
+
+        /* Change Password Specific */
+        #password-form .submit-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            background-color: var(--accent-purple);
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        #password-form .submit-btn:hover {
+            background-color: var(--primary-purple);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Action Cards --- */
+        .action-card {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f3f4f6; /* gray-100 */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .action-card:hover {
+            border-color: var(--accent-purple);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: scale(1.03);
+        }
+
+        .card-icon {
+            color: var(--primary-purple);
+            width: 32px;
+            height: 32px;
+        }
+
+        .card-content h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .card-content p {
+            font-size: 0.875rem;
+            color: #6b7280; /* gray-500 */
+            margin: 0;
+        }
+
+
+        /* --- Media Queries (Responsiveness) --- */
+        @media (min-width: 1024px) { /* Equivalent to lg: breakpoint */
+            .profile-container {
+                padding: 40px 60px;
+            }
+            .main-content-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        @media (max-width: 640px) { /* Equivalent to sm: breakpoint */
+             .profile-container {
+                padding: 20px;
+            }
+        }
+
+        .toast {
+  position: fixed;
+  top: 20px;
+  right: -400px; /* start hidden off-screen */
+  min-width: 250px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 9999;
+
+  /* animation */
+  transition: right 0.6s ease-in-out, opacity 0.6s ease-in-out;
+  opacity: 0;
+}
+
+.toast.show {
+  right: 20px; /* slide into view */
+  opacity: 1;
+}
+
+.toast-success {
+  background-color: #16a34a; /* green */
+}
+
+.toast-error {
+  background-color: #dc2626; /* red */
+}
+
+.toast-info {
+  background-color: #2563eb; /* blue */
+}
+
+.toast-warning {
+  background-color: #f59e0b; /* yellow */
+}
+
+#load {
+  transition: opacity 0.5s ease;
+}
+
+#load.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video {
+    background-color: rgb(255, 255, 255);
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+}
+/* --- Unified AttendEase Button Style --- */
+.save-btn,
+.submit-btn {
+  width: 100%;
+  padding: 0.85rem 1.2rem;
+  background: linear-gradient(135deg, #794BC4, #9C27B0);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(121, 75, 196, 0.3);
+  transition: all 0.25s ease-in-out;
+}
+
+/* Hover effect — brighter gradient & glow */
+.save-btn:hover,
+.submit-btn:hover {
+  background: linear-gradient(135deg, #8E5CE6, #B347E5);
+  box-shadow: 0 6px 14px rgba(156, 39, 176, 0.4);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Active click effect */
+.save-btn:active,
+.submit-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 8px rgba(156, 39, 176, 0.3);
+}
+
+/* Subtle loading animation effect (optional if you show loader) */
+.save-btn.loading,
+.submit-btn.loading {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+
+    
+    </style>
+
+    <button class="go-back-btn" onclick="window.location.href='{% url 'userdash' %}'">  
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><path fill="none" stroke="#ffffff" stroke-linejoin="round" stroke-width="4" d="M44 40.836c-4.893-5.973-9.238-9.362-13.036-10.168c-3.797-.805-7.412-.927-10.846-.365V41L4 23.545L20.118 7v10.167c6.349.05 11.746 2.328 16.192 6.833c4.445 4.505 7.009 10.117 7.69 16.836Z" clip-rule="evenodd"/></svg>
+    </button>
+
+    <!-- Main Profile Container -->
+    <div class="profile-container">
+        <h1 style="text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: var(--text-color);">User Profile & Settings</h1>
+        
+        <!-- Profile Header Section -->
+        <div class="profile-header">
+            <div class="avatar-wrapper">
+                <img id="user-avatar" src="{%static 'icons8-test-account.gif'%}" alt="User Avatar" class="avatar">
+            </div>
+            <p id="profile-name" class="profile-name">{{user.username}} ({{user.user_type}})</p>
+            <p id="profile-email" class="profile-email">{{user.email}}</p>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-content-grid">
+            
+            <!-- Left Column: Basic Info & Security -->
+            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2rem;" class="lg-col-span-2">
+                
+                <!-- Basic Information Update Form -->
+                <div class="card-section">
+                    <h2 class="section-title">
+                        <i data-lucide="user" style="width: 20px; height: 20px;"></i>Basic Information
+                    </h2>
+                    <form id="profile-form" method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+                        {% csrf_token %}
+                        <!-- Full Name -->
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" class="form-input" placeholder="Enter your full name" required>
+                            <p id="fullName-validation" class="input-validation" style="display: none;"></p>
+                        </div>
+                        
+                        <!-- Email (Read-only for security, simulating need for external change) -->
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" class="form-input readonly" placeholder="user@attend-ease.com" readonly>
+                            <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">Contact IT to change your primary email address.</p>
+                        </div>
+                        
+                        <!-- Phone Number -->
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" class="form-input" placeholder="e.g., (123) 456-7890">
+                        </div>
+
+                        <div class="form-group password-group">
+                            <label for="currentPassword">Current Password (to save changes)</label>
+                            <input type="password" id="currentPassword" name="currentPassword" class="form-input" placeholder="********" required>
+                            <button type="button" onclick="togglePasswordVisibility('currentPassword', 'toggle-current')" class="password-toggle-btn">
+                              <i id="toggle-current" data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+
+                        <!-- Save Changes Button -->
+                        <div style="padding-top: 1rem;">
+                            <button type="submit" class="save-btn">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+   
+                </div>
+                
+                <!-- Security Preferences Section -->
+                <div class="card-section">
+                    <h2 class="section-title">
+                        <i data-lucide="lock" style="width: 20px; height: 20px;"></i>Security Preferences
+                    </h2>
+                    
+                    <!-- Change Password Sub-section -->
+ <div style="padding-bottom: 1rem;">
+  <h3 style="font-weight: 500; color: #1f2937; margin-bottom: 0.75rem;">Change Password</h3>
+
+  <form id="password-form" method="post" action="{% url 'change_password' %}" style="display: flex; flex-direction: column; gap: 0.75rem;">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input type="password" id="newPassword" name="newPassword" class="form-input" placeholder="Enter new password" required>
+      <p id="newPassword-validation" class="input-validation" style="display: none; color: red;">
+        Password must be at least 8 characters long.
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmNewPassword">Confirm New Password</label>
+      <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-input" placeholder="Confirm new password" required>
+      <p id="confirmNewPassword-validation" class="input-validation" style="display: none; color: red;">
+        Passwords do not match.
+      </p>
+    </div>
+
+    <button type="submit" class="submit-btn" style="align-self: flex-start;" > 
+      Update Password
+    </button>
+  </form>
+{% if messages %}
+  <div id="toast-container">
+    {% for message in messages %}
+      <div class="toast 
+                  {% if message.tags %} toast-{{ message.tags }} {% else %} toast-info {% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+</div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Action Cards -->
+            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 1rem;" class="lg-col-span-1 action-cards-column">
+                <h2 class="section-title">
+                    <i data-lucide="scan-face" style="width: 20px; height: 20px;"></i>Quick Actions
+                </h2>
+
+                <!-- Action Card: Face ADD -->
+                <button onclick="window.location.href='{% url 'face_add' %}'" class="action-card">
+                    <div class="card-content">
+                        <h3>Face ADD</h3>
+                        <p>Enroll your face for recognition.</p>
+                    </div>
+                    <i data-lucide="user-plus" class="card-icon"></i>
+                </button>
+
+                <!-- Action Card: Take AttendEase -->
+                <button onclick="window.location.href='{% url 'face_scan' %}'" class="action-card">
+                    <div class="card-content">
+                        <h3>Take AttendEase</h3>
+                        <p>Quickly log your attendance now.</p>
+                    </div>
+                    <i data-lucide="clock" class="card-icon"></i>
+                </button>
+
+                <!-- Action Card: View Face Data -->
+                <button onclick="window.location.href='{% url 'face_view' %}'" class="action-card">
+                    <div class="card-content">
+                        <h3>View Face Data</h3>
+                        <p>Review your registered face map.</p>
+                    </div>
+                    <i data-lucide="eye" class="card-icon"></i>
+                </button>
+            </div>
+            
+        </div>
+        
+    </div>
+
+<div id="load" class="video">
+
+  <video 
+         style="width: 130px; height: auto; border-radius: 10px;" 
+         class="video" 
+         src="{% static 'Untitled video - Made with Clipchamp (2) (online-video-cutter.com).mp4' %}" 
+         autoplay loop muted>
+  </video>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+  });
+
+     document.addEventListener("DOMContentLoaded", function () {
+    const toasts = document.querySelectorAll(".toast");
+    toasts.forEach((toast, index) => {
+      setTimeout(() => {
+        toast.classList.add("show");
+      }, index * 300); // staggered slide if multiple
+
+      // Auto hide after 4s
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 4000 + index * 300);
+    });
+  });
+
+  document.querySelectorAll("form").forEach(form => {
+  form.addEventListener("submit", () => {
+    document.getElementById("load").style.display = "flex";
+  });
+});
+
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    document.getElementById("load").style.display = "none";
+  }, 2000);
+
+});
+
+// Run setupUI on load
+window.addEventListener("load", setupUI);
+
+
+            const setupUI = () => {
+            // FIX APPLIED HERE: Initialize Lucide icons here to ensure all HTML elements
+            // are loaded and parsed before the script attempts to replace them with SVGs.
+            lucide.createIcons();
+            
+            document.getElementById('profile-name').textContent = userData.fullName;
+            document.getElementById('profile-email').textContent = userData.email;
+            
+            // Populate form fields
+            document.getElementById('fullName').value = userData.fullName;
+            document.getElementById('email').value = userData.email;
+            document.getElementById('phoneNumber').value = userData.phoneNumber;
+        };
+
+            function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input) return;
+            if (input.type === 'password') {
+              input.type = 'text';
+              // change icon if you want (example for lucide/icons)
+              if (icon) icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+              input.type = 'password';
+              if (icon) icon.setAttribute('data-lucide', 'eye');
+            }
+            // If you use lucide, you may need to re-run lucide.replace() after manipulating attributes
+            try { if (typeof lucide !== 'undefined') lucide.replace(); } catch(e){}
+                }
+
+        document.getElementById("password-form").addEventListener("submit", function(e) {
+        const newPassword = document.getElementById("newPassword").value.trim();
+        const confirmPassword = document.getElementById("confirmNewPassword").value.trim();
+
+  let valid = true;
+
+  // Check length
+  if (newPassword.length < 8) {
+    document.getElementById("newPassword-validation").style.display = "block";
+    valid = false;
+  } else {
+    document.getElementById("newPassword-validation").style.display = "none";
+  }
+
+  // Check match
+  if (newPassword !== confirmPassword) {
+    document.getElementById("confirmNewPassword-validation").style.display = "block";
+    valid = false;
+  } else {
+    document.getElementById("confirmNewPassword-validation").style.display = "none";
+  }
+
+  if (!valid) {
+    e.preventDefault(); // stop submit
+  }
+});
+    </script>
+
+
+
+{%endblock%}  

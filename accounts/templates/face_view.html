@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Face View | AttendEase{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Profile | AttendEase</title>
+    <style>
+        :root {
+            --primary-purple: #6C5CE7;
+            --secondary-purple: #A29BFE;
+            --accent-green: #00B894;
+            --secondary-green: #55EFC4;
+            --cancel-red: #D32F2F;
+            --cancel-red-secondary: #FF5722;
+            --background-light-gray: #F8F9FA;
+            --text-dark: #333;
+            --text-footer: #888;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-light-gray);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        #verification-card {
+            background-color: #fff;
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 1px solid #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        h1 { text-align: center; color: var(--primary-purple); margin: 0; font-size: 1.5rem; }
+        h2 { text-align: center; color: var(--text-dark); margin: 0; font-size: 1.25rem; font-weight: 600; }
+        hr { border: none; height: 1px; background-color: #f3f4f6; margin: 0.5rem 0; }
+
+        img { width: 100%; border-radius: 12px; }
+
+        .status-text {
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .status-pending { color: orange; }
+        .status-rejected { color: var(--cancel-red); }
+
+        #Back-btn {
+            width: 100%;
+            background-image: linear-gradient(to right, var(--cancel-red), var(--cancel-red-secondary));
+            border: none;
+            border-radius: 30px;
+            padding: 0.75rem 0;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        #Back-btn:hover { transform: scale(1.03); opacity: 0.9; }
+
+        @media (max-width: 640px) {
+            #verification-card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div style="max-width:800px; margin:2rem auto; display:flex; flex-wrap:wrap; gap:2rem; justify-content:center;">
+
+    <!-- Registered / Approved Face -->
+    <div style="flex:1 1 350px; background:#fff; border-radius:20px; padding:2rem; box-shadow:0 10px 20px rgba(0,0,0,0.1); border:1px solid #f3f4f6;">
+        <h2 style="text-align:center; color:#6C5CE7;">Registered Face</h2>
+        {% if old_face_url %}
+            <img src="{{ old_face_url }}" alt="Registered Face" style="width:100%; border-radius:12px; border:2px solid #d1d5db; margin-top:1rem;">
+        {% else %}
+            <p style="text-align:center; margin-top:1rem;">No registered face found.</p>
+        {% endif %}
+    </div>
+
+    <!-- Pending / Rejected Face -->
+    {% if pending_face and new_face_url %}
+    <div style="flex:1 1 350px; background:#fff; border-radius:20px; padding:2rem; box-shadow:0 10px 20px rgba(0,0,0,0.1); border:1px solid #f3f4f6;">
+        <h2 style="text-align:center; color:{% if face_status == 'Rejected' %}#D32F2F{% else %}orange{% endif %};">
+            {% if face_status == "Rejected" %}
+                Previous Face Update
+            {% else %}
+                Pending Face
+            {% endif %}
+        </h2>
+        <img src="{{ new_face_url }}" alt="Pending/Rejected Face" style="width:100%; border-radius:12px; border:2px solid {% if face_status == 'Rejected' %}#D32F2F{% else %}orange{% endif %}; margin-top:1rem;">
+        <p style="text-align:center; font-weight:bold; margin-top:0.5rem; color:{% if face_status == 'Rejected' %}#D32F2F{% else %}orange{% endif %};">
+            {% if face_status == "Rejected" %}
+                ❌ Your previous face update was rejected.
+            {% else %}
+                ⏳ Pending Approval
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Back Button -->
+<div style="max-width:400px; margin:2rem auto;">
+    <form action="{% url 'userdash' %}" method="get">
+        <button style="width:100%; padding:0.75rem; border-radius:30px; background:linear-gradient(to right, #D32F2F, #FF5722); border:none; color:#fff; font-weight:bold; cursor:pointer;">
+            ⬅️ Back
+        </button>
+    </form>
+</div>
+
+</body>
+</html>
+{% endblock %}

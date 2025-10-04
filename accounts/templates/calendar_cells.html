@@ -1,0 +1,32 @@
+<style>
+    .leave-day {
+    border:4px solid Yellow;/* Yellow */
+    font-weight: bold;
+    
+}
+
+.empty {
+    background-color: transparent;
+    cursor: default;
+}
+</style>    
+  
+
+    {% for day_name in day_names %}
+        <div class="day-name">{{ day_name }}</div>
+    {% endfor %}
+
+<!-- Dynamic Calendar Days -->
+{% for week in cal_weeks %}
+    {% for day in week %}
+            {% if day == 0 %}
+                <div class="day-cell empty"></div>
+            {% elif day in leave_days %}
+                <div class="day-cell leave-day" title="{% for info in leave_info.day %}{{ info }}{% if not forloop.last %}&#10;{% endif %}{% endfor %}">{{ day }}</div>
+            {% elif day == today_day and cal_month == today_month and cal_year == today_year %}
+                <div class="day-cell today">{{ day }}</div>
+            {% else %}
+                <div class="day-cell">{{ day }}</div>
+            {% endif %}
+    {% endfor %}
+{% endfor %}
