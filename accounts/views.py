@@ -368,7 +368,7 @@ def admin_view(request):
     return render(request, "admin.html")
 
 def index(request):
-    template = loader.get_template("home.html")
+    template = loader.get_template("index.html")
     return HttpResponse(template.render({}, request))
 
 User = get_user_model()
