@@ -6,13 +6,44 @@
     font-family:'poppins',sans-serif;
 }
 body{
-    display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(221deg, #5d00ff, #000000);
+    /* background: linear-gradient(221deg, #5d00ff, #000000); */
 }
-nav{
+        /* --- CSS Variables --- */
+        :root {
+            --primary-purple: #794BC4; /* Deep Modern Purple */
+            --accent-purple: #9C27B0; /* Brighter Purple */
+            --text-color: #333333;
+            --background-neutral: #F4F6F8;
+            --card-background: #ffffff;
+            --input-bg: #FAFAFA;
+            --success-color: #10B981; /* Emerald */
+            --error-color: #EF4444; /* Red */
+        }
+
+
+nav {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    height: 80px;
+    background-color: transparent; /* transparent at top */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    /* box-shadow: 2px 2px 10px rgba(0, 0,0, 0.15); */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+nav.scrolled {
+    background-color: #fff; /* white after scroll */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.15);
+}
+/* nav{
     position: fixed;
     width: 100%;
     top: 0;
@@ -25,12 +56,13 @@ nav{
     padding: 0 40px;
     box-shadow: 2px 2px 10px rgba(0, 0,0, 0.15);
     /*background-color: rgba(204, 0, 255, 0.85);*/
-}
-nav img{
-    width: 230px;
-    height: 50px;
+ 
+.imgl{
+    width: 210px;
+    height: 55px;
     cursor: pointer;
 }
+
 nav .navigation ul{
 
     display: flex;
@@ -52,13 +84,14 @@ nav .navigation ul li a{
     transition: 0.3s ease;
 }
 nav .navigation ul li a.active{
-    color: rgb(0, 227, 42);
+    color: rgb(101, 29, 255);
 }
 nav .navigation ul li a:hover{
-     color: rgb(0, 227, 42);
+     color: rgb(101, 29, 255);
 }
+
 #home{
-    background-image: linear-gradient(rgba(9,5,54,0.3),rgba(5,4,46,0.7)),url("/static/images/homeback.png");
+    background-image: linear-gradient(#ffffff,#a722ff9c),url("/static/images/homeback.png");
     background-repeat:no-repeat;
     width: 100%;
     height: 100vh;
@@ -69,8 +102,7 @@ nav .navigation ul li a:hover{
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding-top: 40px;
-    margin-top: 80px;
+
 }
 
 #home h2{
@@ -311,3 +343,30 @@ nav .navigation ul li a:hover{
         font-size: 30px;
     }
 }
+
+ 
+    .go-back-btn {
+    display: inline-block;
+    padding: 12px 17px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #6a0dad;
+    border: none;
+    border-radius: 55px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .go-back-btn:hover {
+      background-color: #a13dffff; /* Lighter purple on hover */
+      transform: scale(1.1); /* Slight zoom effect */
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .go-back-btn:active {
+      transform: scale(0.95); /* Pressed effect */
+    }
