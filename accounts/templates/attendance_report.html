@@ -10,7 +10,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attendance Report</title>
-  <style rel="stylesheet" href="{% static 'style.css' %}">
+  {% comment %} <style rel="stylesheet" href="{% static 'style.css' %}"> {% endcomment %}
   <style>
     :root {
       --primary-purple: #6C5CE7; /* Main purple */
@@ -93,6 +93,84 @@
       color: #777;
       font-style: italic;
     }
+    
+    .go-back-btn,
+.go-btn {
+  margin:20px; 
+  padding: 0.85rem 1.2rem;
+  background: linear-gradient(135deg, #794BC4, #9C27B0);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(121, 75, 196, 0.3);
+  transition: all 0.25s ease-in-out;
+}
+
+/* Hover effect — brighter gradient & glow */
+.go-btn:hover,
+.go-back-btn:hover {
+  background: linear-gradient(135deg, #8E5CE6, #B347E5);
+  box-shadow: 0 6px 14px rgba(156, 39, 176, 0.4);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Active click effect */
+.go-btn:active,
+.go-back-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 8px rgba(156, 39, 176, 0.3);
+}
+
+/* Subtle loading animation effect (optional if you show loader) */
+.go-btn.loading,
+.go-back-btn.loading {
+  opacity: 0.8;
+  pointer-events: none;
+}
+.download-btn {
+    background: linear-gradient(135deg, #00f260, #0575e6);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 255, 150, 0.4);
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.download-btn:hover {
+    background: linear-gradient(135deg, #0575e6, #00f260);
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0, 255, 150, 0.6);
+}
+
+.download-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 255, 150, 0.3);
+}
+
+
+    .bg-warning {
+      background-color: #ffeb3b;
+      color: #333;
+    }
+
+    .bg-danger {
+      background-color: #f44336;
+      color: white;
+    }
+
    
   </style>
 </head>
@@ -101,7 +179,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><path fill="none" stroke="#ffffff" stroke-linejoin="round" stroke-width="4" d="M44 40.836c-4.893-5.973-9.238-9.362-13.036-10.168c-3.797-.805-7.412-.927-10.846-.365V41L4 23.545L20.118 7v10.167c6.349.05 11.746 2.328 16.192 6.833c4.445 4.505 7.009 10.117 7.69 16.836Z" clip-rule="evenodd"/></svg>
     </button>
 
-  <div class="container">
+ <div class="container">
     <h2>📊 Attendance Report</h2>
 
     <table>
@@ -119,15 +197,15 @@
         <tr>
           <td>{{ record.user.username }}</td>
           <td>{{ record.date|date:"Y-m-d" }}</td>
-          <td>{{ record.check_in|default:"-"|time:"H:i:s" }}</td>
-          <td>{{ record.check_out|default:"-"|time:"H:i:s" }}</td>
+          <td>{{ record.check_in|default:"--"|time:"H:i:s" }}</td>
+          <td>{{ record.check_out|default:"--"|time:"H:i:s" }}</td>
           <td>
             {% if record.check_in and record.check_out %}
-              <span class="badge bg-success">Present (Checked Out)</span>
+              <span class="badge bg-success">✅ Present</span>
             {% elif record.check_in %}
-              <span class="badge bg-warning text-dark">Checked In</span>
+              <span class="badge bg-warning text-dark">⚠️ Checked In (No Check-Out)</span>
             {% else %}
-              <span class="badge bg-danger">Absent</span>
+              <span class="badge bg-danger">❌ Absent</span>
             {% endif %}
           </td>
         </tr>
@@ -139,10 +217,17 @@
       </tbody>
     </table>
   </div>
-  <a href="{% url 'download_attendance_csv' %}" class="btn btn-primary" style="margin: 10px 0;">
-    ⬇️ Download Attendance (CSV)
-</a>
 
+  <center>
+<button 
+    onclick="window.location.href='{% url 'download_attendance_csv' %}'" 
+    class="download-btn">
+    ⬇️ Download Attendance Report (CSV)
+</button>
+
+</center>
+
+</center>
 </body>
 </html>
 {% endblock %}

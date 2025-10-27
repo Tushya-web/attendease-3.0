@@ -33,32 +33,27 @@
             padding: 1rem;
         }
 
-        #verification-card {
-            background-color: #fff;
+        h2 {
+            text-align: center;
+            color: var(--text-dark);
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        img {
             width: 100%;
-            max-width: 400px;
-            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .face-card {
+            flex: 1 1 350px;
+            background: #fff;
             border-radius: 20px;
+            padding: 2rem;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             border: 1px solid #f3f4f6;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
         }
-
-        h1 { text-align: center; color: var(--primary-purple); margin: 0; font-size: 1.5rem; }
-        h2 { text-align: center; color: var(--text-dark); margin: 0; font-size: 1.25rem; font-weight: 600; }
-        hr { border: none; height: 1px; background-color: #f3f4f6; margin: 0.5rem 0; }
-
-        img { width: 100%; border-radius: 12px; }
-
-        .status-text {
-            font-weight: bold;
-            margin-top: 0.5rem;
-        }
-
-        .status-pending { color: orange; }
-        .status-rejected { color: var(--cancel-red); }
 
         #Back-btn {
             width: 100%;
@@ -76,52 +71,51 @@
         #Back-btn:hover { transform: scale(1.03); opacity: 0.9; }
 
         @media (max-width: 640px) {
-            #verification-card { padding: 1.5rem; }
+            .face-card { padding: 1.5rem; }
         }
     </style>
 </head>
 <body>
-<div style="max-width:800px; margin:2rem auto; display:flex; flex-wrap:wrap; gap:2rem; justify-content:center;">
+<div style="max-width: 1200px; margin: 2rem auto; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center;">
 
-    <!-- Registered / Approved Face -->
-    <div style="flex:1 1 350px; background:#fff; border-radius:20px; padding:2rem; box-shadow:0 10px 20px rgba(0,0,0,0.1); border:1px solid #f3f4f6;">
-        <h2 style="text-align:center; color:#6C5CE7;">Registered Face</h2>
-        {% if old_face_url %}
-            <img src="{{ old_face_url }}" alt="Registered Face" style="width:100%; border-radius:12px; border:2px solid #d1d5db; margin-top:1rem;">
+    <!-- ✅ Registered / Approved Face -->
+    <div class="face-card">
+        <h2 style="color: #6C5CE7;">Registered Face</h2>
+        {% if old_face %}
+            <img src="{{ old_face }}" alt="Registered Face" style="border: 2px solid #6C5CE7; margin-bottom: 10px;">
         {% else %}
             <p style="text-align:center; margin-top:1rem;">No registered face found.</p>
         {% endif %}
     </div>
 
-    <!-- Pending / Rejected Face -->
-    {% if pending_face and new_face_url %}
-    <div style="flex:1 1 350px; background:#fff; border-radius:20px; padding:2rem; box-shadow:0 10px 20px rgba(0,0,0,0.1); border:1px solid #f3f4f6;">
-        <h2 style="text-align:center; color:{% if face_status == 'Rejected' %}#D32F2F{% else %}orange{% endif %};">
-            {% if face_status == "Rejected" %}
-                Previous Face Update
-            {% else %}
-                Pending Face
-            {% endif %}
-        </h2>
-        <img src="{{ new_face_url }}" alt="Pending/Rejected Face" style="width:100%; border-radius:12px; border:2px solid {% if face_status == 'Rejected' %}#D32F2F{% else %}orange{% endif %}; margin-top:1rem;">
-        <p style="text-align:center; font-weight:bold; margin-top:0.5rem; color:{% if face_status == 'Rejected' %}#D32F2F{% else %}orange{% endif %};">
-            {% if face_status == "Rejected" %}
-                ❌ Your previous face update was rejected.
-            {% else %}
-                ⏳ Pending Approval
-            {% endif %}
+    <!-- ⏳ Pending Face -->
+    {% if pending_face %}
+    <div class="face-card">
+        <h2 style="color: orange;">Pending Face</h2>
+        <img src="{{ pending_face }}" alt="Pending Face" style="border: 2px solid orange; margin-top: 1rem;">
+        <p style="text-align:center; font-weight:bold; margin-top:0.5rem; color: orange;">
+            ⏳ Pending Admin Approval
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- ❌ Rejected Face -->
+    {% if rejected_face and not pending_face %}
+    <div class="face-card">
+        <h2 style="color: #D32F2F;">Rejected Face</h2>
+        <img src="{{ rejected_face }}" alt="Rejected Face" style="border: 2px solid #D32F2F; margin-top: 1rem;">
+        <p style="text-align:center; font-weight:bold; margin-top:0.5rem; color: #D32F2F;">
+            ❌ Your last face update was rejected.
         </p>
     </div>
     {% endif %}
 
 </div>
 
-<!-- Back Button -->
+<!-- 🔙 Back Button -->
 <div style="max-width:400px; margin:2rem auto;">
     <form action="{% url 'userdash' %}" method="get">
-        <button style="width:100%; padding:0.75rem; border-radius:30px; background:linear-gradient(to right, #D32F2F, #FF5722); border:none; color:#fff; font-weight:bold; cursor:pointer;">
-            ⬅️ Back
-        </button>
+        <button id="Back-btn">⬅️ Back</button>
     </form>
 </div>
 

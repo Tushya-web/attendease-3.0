@@ -3,9 +3,11 @@ from django.urls import path
 from django.conf.urls import include
 from .text_face import verify_faces
 
+from accounts.admin import custom_admin_site
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', custom_admin_site.urls),
     # path("test_facenet/", verify_faces , name="test_facenet"),
     path('', include('accounts.urls')),
     path('accounts/', include('accounts.urls')),

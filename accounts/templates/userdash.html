@@ -3,8 +3,9 @@
 {% block title %}AttendEase | User Dashboard{% endblock %}
 {% block content %}
 
- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Lucide Icon Library Script -->
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
 
@@ -371,7 +372,7 @@ nav .navigation ul li a:hover{
         /* --- 1. Welcome Banner --- */
         .welcome-card {
             grid-column: 1 / -1; /* Spans the full width of the grid */
-            background: linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-end));
+           background: linear-gradient(90deg, #6A0DAD, #9b59b6);
             color: var(--color-text-light);
             padding: var(--spacing-large);
             display: flex;
@@ -379,6 +380,7 @@ nav .navigation ul li a:hover{
             align-items: center;
             overflow: hidden;
             position: relative;
+
         }
 
         .welcome-card::before {
@@ -533,6 +535,13 @@ nav .navigation ul li a:hover{
             transition: transform 0.1s;
         }
 
+        /* New CSS to size Lucide icons in Quick Action Cards */
+        .quick-action-icon svg {
+            width: 28px;
+            stroke-width: 3px;
+            height: 28px;
+        }
+
         .quick-action-card:hover .quick-action-icon {
             transform: scale(1.05);
         }
@@ -547,55 +556,117 @@ nav .navigation ul li a:hover{
         .mid-section-grid {
             grid-column: 1 / -1;
             display: grid;
-            grid-template-columns: 2.5fr 1fr;
+            grid-template
+            -columns: 2.5fr 1fr;
             gap: var(--spacing-medium);
         }
 
         /* --- 4. Calendar Section --- */
-        .calendar-card {
-            min-height: 400px;
-            background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
-            color: var(--color-text-light);
-            padding: var(--spacing-medium);
-            display: flex;
-            flex-direction: column;
-        }
+:root {
+    --color-primary: #6C5CE7;          /* Main purple */
+    --color-primary-dark: #341f97;     /* Darker purple */
+    --color-accent: #A29BFE;           /* Light purple accent */
+    --color-text-light: #fff;
+    --color-leave: #f1c40f;            /* Yellow for leave */
+    --color-present: #2ecc71;          /* Green for present */
+    --color-halfday: #e67e22;          /* Orange for half-day */
+    --color-absent: #e74c3c;           /* Red for absent */
+    --radius-element: 12px;
+    --spacing-small: 0.5rem;
+    --spacing-medium: 1rem;
+}
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-small);
-        }
+.calendar-card {
+    height:auto;
+    background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
+    color: var(--color-text-light);
+    padding: var(--spacing-medium);
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-element);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-        .calendar-header h3 {
-            color: var(--color-text-light);
-            margin-bottom: 0;
-        }
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-small);
+}
 
-        .calendar-nav-button {
-            background: none;
-            border: none;
-            color: var(--color-text-light);
-            font-size: 1.2rem;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.1s;
-        }
-        .calendar-nav-button:hover {
-            opacity: 1;
-        }
+.calendar-header h3 {
+    color: var(--color-text-light);
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
 
-        .calendar-grid {
-            flex-grow: 1;
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-element);
-            padding: 5px;
-        }
+.calendar-nav-button {
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.calendar-nav-button:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.calendar-grid {
+    display: flex;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-element);
+    padding: 5px;
+    flex-grow: 1;
+}
+
+/* Day names */
+.day-name {
+    font-weight: bold;
+    color: var(--color-accent);
+    padding: 8px 0;
+    border-radius: var(--radius-element);
+    background-color: rgba(255,255,255,0.15);
+}
+
+/* Calendar day cells */
+.day-cell {
+    padding: 5px;
+    text-align: center;
+    border-radius: 6px;
+    margin: 4px;
+    min-height: 50px;
+    font-size: 16px;
+    line-height: 3.2;
+    font-weight: bold;
+}
+
+.day-cell:hover {
+    transform: scale(1.05);
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Day type colors */
+.leave-day { background-color: var(--color-leave); color: #333; }
+.present-day { background-color: var(--color-present); color: #fff; }
+.half-day { background-color: var(--color-halfday); color: #fff; }
+.absent-day { background-color: var(--color-absent); color: #fff; }
+.today { border: 2px solid var(--color-accent); }
+
+.empty { background-color: transparent; cursor: default; }
+
+/* Responsive */
+@media (max-width: 480px) {
+    .day-cell { padding: 8px 0; font-size: 0.85rem; min-height: 40px; }
+    .day-name { font-size: 0.8rem; padding: 5px 0; }
+}
 
         .day-name {
             font-weight: 500;
@@ -679,6 +750,12 @@ nav .navigation ul li a:hover{
             font-size: 1.2rem;
             margin-right: 12px;
             flex-shrink: 0;
+        }
+
+        /* New CSS to size Lucide icons in Notifications */
+        .notification-icon svg {
+            width: 1.2rem;
+            height: 1.2rem;
         }
 
         .notification-icon.late { color: var(--color-late); }
@@ -777,6 +854,12 @@ nav .navigation ul li a:hover{
             margin-right: 8px;
             font-size: 1.2rem;
         }
+        
+        /* New CSS to size Lucide icons in Footer Buttons */
+        .footer-button span svg {
+          width: 20px;
+          height: 20px;
+        }
 
         /* Responsive Adjustments */
         @media (max-width: 1024px) {
@@ -849,29 +932,7 @@ nav .navigation ul li a:hover{
     z-index: 3;
 }
 
-.calendar-card {
-    min-height: 400px;
-    background: linear-gradient(145deg, var(--color-primary-dark), var(--color-primary));
-    color: var(--color-text-light);
-    padding: var(--spacing-medium);
-    display: flex;
-    flex-direction: column;
-}
 
-.calendar-grid {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-element);
-    padding: 5px;
-}
-
-.day-name { font-weight: 500; font-size: 0.8rem; color: rgba(255,255,255,0.7); padding: 8px 0; }
-.day-cell { padding: 10px 0; border-radius: var(--radius-element); font-weight: 500; font-size: 0.85rem; }
-.day-cell.today { border: 2px solid var(--color-text-light); }
 </style>
 
     <nav>
@@ -879,7 +940,7 @@ nav .navigation ul li a:hover{
         <div class="navigation">
             <ul>   
                 <li><a class="active" href="{% url 'home' %}">Home</a></li>
-                <li><a href="#">About</a></li>
+                {% comment %} <li><a href="#">About</a></li> {% endcomment %}
                 <li><a href="#">Attendance</a></li>
                 {% comment %} <li><a href="{% url 'admin:index' %}">Administrator</a></li>
                 <li><a href="{% url 'register' %}">Sign Up</a></li>{% endcomment %}
@@ -966,35 +1027,43 @@ nav .navigation ul li a:hover{
         <!-- 2. Quick Action Cards (Main Grid) -->
         <div class="quick-actions-grid">
             <div class="card quick-action-card" onclick="window.location.href='{% url 'face_add' %}'">
-                <div class="quick-action-icon">➕</div>
+                <!-- Icon: UserPlus (➕) -->
+                <div class="quick-action-icon"><i data-lucide="user-plus"></i></div>
                 <p>Add Face</p>
             </div>
             <div class="card quick-action-card" onclick="window.location.href='{% url 'face_scan' %}'">
-                <div class="quick-action-icon">📸</div>
+                <!-- Icon: ScanFace (📸) -->
+                <div class="quick-action-icon"><i data-lucide="scan-face"></i></div>
                 <p>Take Attendance</p>
             </div>
             <div class="card quick-action-card" onclick="window.location.href='{% url 'face_view'%}'">
-                <div class="quick-action-icon">👀</div>
+                <!-- Icon: Users (👀) -->
+                <div class="quick-action-icon"><i data-lucide="users"></i></div>
                 <p>View My Faces</p>
             </div>
             <div class="card quick-action-card" onclick="window.location.href='{% url 'attendance_report' %}'">
-                <div class="quick-action-icon">📊</div>
+                <!-- Icon: BarChart2 (📊) -->
+                <div class="quick-action-icon"><i data-lucide="bar-chart-2"></i></div>
                 <p>Attendance Report</p>
             </div>
             <div class="card quick-action-card" onclick="window.location.href='{%url 'leave_request'%}'">
-                <div class="quick-action-icon">🗓</div>
+                <!-- Icon: CalendarPlus (🗓) -->
+                <div class="quick-action-icon"><i data-lucide="calendar-plus"></i></div>
                 <p>Leave Request</p>
             </div>
             <div class="card quick-action-card">
-                <div class="quick-action-icon">⏰</div>
+                <!-- Icon: Clock (⏰) -->
+                <div class="quick-action-icon"><i data-lucide="clock"></i></div>
                 <p>Check In / Check Out</p>
             </div>
-            <div class="card quick-action-card">
-                <div class="quick-action-icon">📝</div>
+            <div class="card quick-action-card" onclick="window.location.href='{% url 'userprofile' %}'">
+                <!-- Icon: UserPen (📝) -->
+                <div class="quick-action-icon"><i data-lucide="user-pen"></i></div>
                 <p>Profile Update</p>
             </div>
             <div class="card quick-action-card">
-                <div class="quick-action-icon">🔔</div>
+                <!-- Icon: Bell (🔔) -->
+                <div class="quick-action-icon"><i data-lucide="bell"></i></div>
                 <p>Notifications</p>
             </div>
         </div>
@@ -1020,15 +1089,18 @@ nav .navigation ul li a:hover{
         <h3>Notifications & Notices</h3>
         <div class="notification-list">
             <div class="notification-item">
-                <span class="notification-icon late">⚠️</span>
+                <!-- Icon: AlertTriangle (⚠️) -->
+                <span class="notification-icon late"><i data-lucide="alert-triangle"></i></span>
                 <span>You were **late** on Sept 13 (Checked in at 9:20 AM).</span>
             </div>
             <div class="notification-item">
-                <span class="notification-icon approved">✅</span>
+                <!-- Icon: CheckCircle (✅) -->
+                <span class="notification-icon approved"><i data-lucide="check-circle"></i></span>
                 <span>**Leave approved** for Sept 20 (Personal).</span>
             </div>
             <div class="notification-item">
-                <span class="notification-icon success">👤</span>
+                <!-- Icon: UserCheck (👤) -->
+                <span class="notification-icon success"><i data-lucide="user-check"></i></span>
                 <span>New face enrolled successfully. Welcome aboard!</span>
             </div>
         </div>
@@ -1076,9 +1148,12 @@ nav .navigation ul li a:hover{
 
         <!-- 7. Footer Quick Actions (Bottom Row) -->
         <div class="footer-actions">
-            <a href="#" class="footer-button"><span>⬇️</span> Download Report</a>
-            <a href="#" class="footer-button"><span>📧</span> Contact Admin</a>
-            <a href="#" class="footer-button" onclick="window.location.href='{% url 'help_support'%}'"><span>ℹ️</span> Help & Support</a>
+            <!-- Icon: Download (⬇️) -->
+            <a href="#" class="footer-button"><span><i data-lucide="download"></i></span> Download Report</a>
+            <!-- Icon: Mail (📧) -->
+            <a href="#" class="footer-button"><span><i data-lucide="mail"></i></span> Contact Admin</a>
+            <!-- Icon: HelpCircle (ℹ️) -->
+            <a href="#" class="footer-button" onclick="window.location.href='{% url 'help_support'%}'"><span><i data-lucide="help-circle"></i></span> Help & Support</a>
         </div>
 
 <div id="load" class="video">
@@ -1092,8 +1167,9 @@ nav .navigation ul li a:hover{
 </div>
 
 
-
   <script>
+    // Initialize Lucide icons on script load
+    lucide.createIcons();
 
     window.onload = function () {
       setTimeout(() => {

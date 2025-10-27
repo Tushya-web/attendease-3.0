@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageData = getCroppedFace();
         localStorage.setItem('new_face', imageData);
         submitBtn.disabled = false;
-        statusText.textContent = "Face captured! Click submit to send for approval.";
+        statusText.textContent = "If this is a New User, no approval is needed. Otherwise, approval is required from the user.";
     });
 
     submitBtn.addEventListener('click', async (e) => {
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const data = await res.json();
         if(data.status === "success"){
-            statusText.textContent = "Face submitted for admin approval!";
+            statusText.textContent = "Face submitted to Server!";
             captureBtn.disabled = true;
             submitBtn.disabled = true;
         } else {

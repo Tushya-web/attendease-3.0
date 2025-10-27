@@ -584,6 +584,16 @@
       height:55px;
     }
 
+            .dashboard-mockup video {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.5s;
+            display: block; /* Important for alignment */
+            margin: 0 auto;
+        }
+
     nav ul {
     position: absolute;
     top: 70px;
@@ -645,6 +655,65 @@
          autoplay loop muted>
   </video>
 </div>
+
+{% comment %} <section class="features-section">
+  <div class="features-header">
+    <h2>AI-Powered Features of AttendEase</h2>
+    <p>Built with DeepFace — a state-of-the-art deep learning framework that brings accuracy, emotion analysis, and liveness detection to your attendance system.</p>
+  </div>
+
+  <div class="feature-container">
+
+    <!-- Card 1: DeepFace Recognition -->
+    <div class="feature-card">
+      <div class="icon-circle"><i data-lucide="scan-face"></i></div>
+      <h3>DeepFace Recognition</h3>
+      <p>Leverages DeepFace’s ensemble models (VGG-Face, Facenet, ArcFace, and more) for ultra-accurate, real-time identity verification.</p>
+      <ul>
+        <li><i data-lucide="check-circle"></i>99.9% recognition accuracy across lighting conditions.</li>
+        <li><i data-lucide="check-circle"></i>Auto-alignment and preprocessing for face normalization.</li>
+        <li><i data-lucide="check-circle"></i>Multi-model confidence scoring for reliability.</li>
+      </ul>
+    </div>
+
+    <!-- Card 2: Emotion & Liveness Detection -->
+    <div class="feature-card">
+      <div class="icon-circle"><i data-lucide="smile"></i></div>
+      <h3>Emotion & Liveness Detection</h3>
+      <p>Detects facial emotions and prevents spoofing using deep CNN-based liveness verification to ensure genuine check-ins.</p>
+      <ul>
+        <li><i data-lucide="check-circle"></i>Real-time spoof prevention (no static photo check-ins).</li>
+        <li><i data-lucide="check-circle"></i>Emotion classification: happy, neutral, sad, angry, and more.</li>
+        <li><i data-lucide="check-circle"></i>Ideal for classroom and workplace authenticity checks.</li>
+      </ul>
+    </div>
+
+    <!-- Card 3: Smart Analytics & Insights -->
+    <div class="feature-card">
+      <div class="icon-circle"><i data-lucide="bar-chart-3"></i></div>
+      <h3>Smart Attendance Analytics</h3>
+      <p>Visualize attendance trends, punctuality stats, and daily activity — all powered by AI-backed insights for smarter decision-making.</p>
+      <ul>
+        <li><i data-lucide="check-circle"></i>Auto-generated daily, weekly, and monthly reports.</li>
+        <li><i data-lucide="check-circle"></i>Batch image attendance marking via multi-face detection.</li>
+        <li><i data-lucide="check-circle"></i>Downloadable reports in CSV or PDF formats.</li>
+      </ul>
+    </div>
+
+    <!-- Card 4: Seamless Integration -->
+    <div class="feature-card">
+      <div class="icon-circle"><i data-lucide="cloud"></i></div>
+      <h3>Seamless Cloud Integration</h3>
+      <p>AttendEase connects with cloud APIs for centralized storage, real-time sync, and secure access — ensuring scalability across multiple branches.</p>
+      <ul>
+        <li><i data-lucide="check-circle"></i>Real-time face sync between users and admin dashboard.</li>
+        <li><i data-lucide="check-circle"></i>Encrypted data handling with privacy compliance.</li>
+        <li><i data-lucide="check-circle"></i>Works both online and offline with auto-sync.</li>
+      </ul>
+    </div>
+
+  </div>
+</section> {% endcomment %}
 <p id="abc"> </p>
     <!-- Features Section -->
     <section class="features-section" >

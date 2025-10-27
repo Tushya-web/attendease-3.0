@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
 from django.template import loader
 
-from .models import Attendance, FaceChangeRequest, LeaveRequest, PendingFaceUpdate 
+from .models import Attendance, FaceChangeRequest, LeaveRequest, PendingFaceUpdate , UserFace
 from .forms import RegistrationForm
 
 from django.contrib.auth import authenticate, login
@@ -26,7 +26,7 @@ from django.http import JsonResponse
 import csv
 
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import base64, os, cv2, numpy as np
 from django.conf import settings
@@ -41,53 +41,48 @@ from django.views.decorators.csrf import csrf_exempt
 from .face_system import add_face_image, decode_base64_image, recognize_logged_in_user
 
 @login_required
+@csrf_exempt
 def face_view(request):
     user = request.user
-    old_face_url = None
-    new_face_url = None
-    face_status = None
-    pending_face = False
 
-    # Step 1: Determine the last approved face
-    # First, check if there is any Approved PendingFaceUpdate
-    latest_approved = PendingFaceUpdate.objects.filter(user=user, status="Approved").order_by('-created_at').first()
-    if latest_approved:
-        # Use the approved new_image or new_face_path
-        if latest_approved.new_image:
-            old_face_url = latest_approved.new_image.url
-        elif latest_approved.new_face_path:
-            relative_path = latest_approved.new_face_path.replace(str(settings.MEDIA_ROOT), "").lstrip("/")
-            old_face_url = f"{settings.MEDIA_URL}{relative_path}"
-    else:
-        # If no approved updates, fallback to the first image in user folder
-        user_folder = os.path.join(settings.MEDIA_ROOT, "faces", user.username)
-        if os.path.exists(user_folder) and len(os.listdir(user_folder)) > 0:
-            old_face_file = os.listdir(user_folder)[0]
-            old_face_url = os.path.join(settings.MEDIA_URL, "faces", user.username, old_face_file)
+    # 1️⃣ Registered / Approved face (from UserFace)
+    user_face = UserFace.objects.filter(user=user).first()
+    old_face_url = user_face.face_image.url if user_face and user_face.face_image else None
 
-    # Step 2: Determine the latest pending or rejected request
-    latest_request = PendingFaceUpdate.objects.filter(user=user).exclude(status="Approved").order_by('-created_at').first()
-    if latest_request:
-        pending_face = True
-        face_status = latest_request.status
+    # 2️⃣ Pending face (from FaceChangeRequest)
+    pending_obj = FaceChangeRequest.objects.filter(user=user, status="Pending").order_by("-created_at").first()
+    pending_face_url = None
+    if pending_obj and pending_obj.new_face_path:
+        path = pending_obj.new_face_path
+        if os.path.isabs(path):
+            relative = os.path.relpath(path, settings.MEDIA_ROOT)
+            pending_face_url = settings.MEDIA_URL + relative.replace("\\", "/")
+        else:
+            pending_face_url = settings.MEDIA_URL + path.replace("\\", "/")
 
-        if latest_request.new_image:
-            new_face_url = latest_request.new_image.url
-        elif latest_request.new_face_path:
-            relative_path = latest_request.new_face_path.replace(str(settings.MEDIA_ROOT), "").lstrip("/")
-            new_face_url = f"{settings.MEDIA_URL}{relative_path}"
+    # 3️⃣ Rejected face (from FaceChangeRequest)
+    rejected_obj = FaceChangeRequest.objects.filter(user=user, status="Rejected").order_by("-created_at").first()
+    rejected_face_url = None
+    if rejected_obj and rejected_obj.new_face_path:
+        path = rejected_obj.new_face_path
+        if os.path.isabs(path):
+            relative = os.path.relpath(path, settings.MEDIA_ROOT)
+            rejected_face_url = settings.MEDIA_URL + relative.replace("\\", "/")
+        else:
+            rejected_face_url = settings.MEDIA_URL + path.replace("\\", "/")
 
     context = {
         "user": user,
-        "old_face_url": old_face_url,       # Always last approved image
-        "pending_face": pending_face,       # True if any pending/rejected exists
-        "new_face_url": new_face_url,       # Pending or rejected image
-        "face_status": face_status,         # Pending or Rejected
+        "old_face": old_face_url,
+        "pending_face": pending_face_url,
+        "rejected_face": rejected_face_url,
+        "has_face": bool(user_face and user_face.face_image),
     }
 
     return render(request, "face_view.html", context)
 
-
+    
+@login_required
 def face_scan(request):
     user = request.user
     today = datetime.today().date()
@@ -97,94 +92,151 @@ def face_scan(request):
     except Attendance.DoesNotExist:
         attendance = None
 
-    # Determine today status
+    # Determine today's status safely
     if not attendance:
         today_status = "Welcome! Please check in."
-        disable_verify = False    
-    # elif attendance.check_in and not attendance.check_out:
-    else:
-        today_status = f"Checked in at {attendance.check_in.strftime('%H:%M:%S')}. You can check out now."
         disable_verify = False
-    # else:
-    #     today_status = "Today’s attendance already marked."
-    #     disable_verify = True
+    else:
+        if attendance.check_in and not attendance.check_out:
+            today_status = f"Checked in at {attendance.check_in.strftime('%H:%M:%S')}. You can check out now."
+            disable_verify = False
+        elif attendance.check_in and attendance.check_out:
+            today_status = f"Already checked in at {attendance.check_in.strftime('%H:%M:%S')} and checked out at {attendance.check_out.strftime('%H:%M:%S')}."
+            disable_verify = True
+        else:  # attendance exists but check_in is None
+            today_status = "Welcome! Please check in."
+            disable_verify = False
 
     return render(request, "face_scan.html", {
         "today_status": today_status,
         "disable_verify": disable_verify
     })
- 
+    
 @csrf_exempt
 @login_required
 def mark_attendance_ajax(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        image_data = data.get("image_data")
-        if not image_data:
-            return JsonResponse({"status": "error", "message": "No image received"})
+    if request.method != "POST":
+        return JsonResponse({"status": "error", "message": "Invalid request"})
 
-        frame = decode_base64_image(image_data)
+    data = json.loads(request.body)
+    image_data = data.get("image_data")
+    if not image_data:
+        return JsonResponse({"status": "error", "message": "No image received"})
 
-        # Recognize face → returns username string
-        username = recognize_logged_in_user(frame, request.user.username)
+    frame = decode_base64_image(image_data)
 
-        if not username:
-            return JsonResponse({"status": "error", "message": "No face detected or unclear. Please try again."})
+    # Recognize face → returns username string
+    username = recognize_logged_in_user(frame, request.user.username)
+    if not username:
+        return JsonResponse({"status": "error", "message": "No face detected or unclear."})
 
-        # ✅ Get User object first
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        try:
-            user_obj = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return JsonResponse({"status": "error", "message": "User not found"})
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    try:
+        user_obj = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "User not found"})
 
-        # Mark attendance
-        from .utils import mark_user_attendance
-        status, time, check_in_time = mark_user_attendance(user_obj)
+    from .utils import mark_user_attendance
+    status, time, check_in_time = mark_user_attendance(user_obj)
 
-        return JsonResponse({
-            "status": "success",
-            "username": username,
-            "type": status,
-            "time": time,
-            "check_in": check_in_time.strftime("%H:%M:%S") if check_in_time else None
-        })
-
-    return JsonResponse({"status": "error", "message": "Invalid request"})
-
-
-@login_required
-def attendance_report(request):
-    from .models import Attendance
-    records = Attendance.objects.filter(user=request.user).order_by("-date")
-    return render(request, "attendance_report.html", {"records": records})
-
-  
-@login_required
-def download_attendance_csv(request):
-    # Filter attendance records for the logged-in user
-    records = Attendance.objects.filter(user=request.user).order_by("-date")
-
-    # Create the HTTP response with CSV content type
-    response = HttpResponse(
-        content_type="text/csv",
-        headers={"Content-Disposition": f'attachment; filename="{request.user.username}_attendance.csv"'},
+    # Safely create/update today's attendance
+    attendance, created = Attendance.objects.get_or_create(
+        user=user_obj,
+        date=date.today(),
+        defaults={
+            "status": status,
+            "check_in": check_in_time,
+        }
     )
 
-    # Create a CSV writer
-    writer = csv.writer(response)
-    writer.writerow(["Date", "Check In", "Check Out"])
+    # If record exists but only check_in is missing (user already has Absent)
+    if not created and not attendance.check_in:
+        attendance.check_in = check_in_time
+        attendance.status = status
+        attendance.save()
 
-    # Write user attendance rows
+    return JsonResponse({
+        "status": "success",
+        "username": username,
+        "type": status,
+        "time": time,
+        "check_in": check_in_time.strftime("%H:%M:%S") if check_in_time else None
+    })
+
+def auto_mark_absent(user):
+    """Automatically create missing 'Absent' records safely."""
+    today = date.today()
+    first_date = user.date_joined.date()
+
+    # Fetch existing dates once
+    existing_dates = set(
+        Attendance.objects.filter(user=user).values_list('date', flat=True)
+    )
+
+    current = first_date
+    while current <= today:
+        if current not in existing_dates:
+            Attendance.objects.get_or_create(
+                user=user,
+                date=current,
+                defaults={"status": "Absent"}
+            )
+        current += timedelta(days=1)
+        
+@login_required
+def attendance_report(request):
+    # Auto-mark absent safely
+    auto_mark_absent(request.user)
+
+    # Fetch attendance
+    records = Attendance.objects.filter(user=request.user).order_by('-date')
+    return render(request, "attendance_report.html", {"records": records})
+
+
+@login_required
+def download_attendance_csv(request):
+    # Step 1: Auto-create missing "Absent" records first
+    auto_mark_absent(request.user)
+
+    # Step 2: Fetch all attendance for the logged-in user
+    records = Attendance.objects.filter(user=request.user).order_by("-date")
+
+    # Step 3: Prepare CSV response
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="{request.user.username}_attendance.csv"'
+        },
+    )
+
+    # Step 4: Write CSV header
+    writer = csv.writer(response)
+    writer.writerow(["Date", "Check In", "Check Out", "Status"])
+
+    # Step 5: Write attendance rows
     for record in records:
-        writer.writerow([
-            record.date.strftime("%Y-%m-%d"),
-            record.check_in.strftime("%H:%M:%S") if record.check_in else "",
-            record.check_out.strftime("%H:%M:%S") if record.check_out else "",
-        ])
+        date_str = record.date.strftime("%Y-%m-%d")
+
+        check_in_str = record.check_in.strftime("%H:%M:%S") if record.check_in else "--"
+        check_out_str = record.check_out.strftime("%H:%M:%S") if record.check_out else "--"
+
+        # Ensure consistency with database status field
+        if hasattr(record, "status") and record.status:
+            status = record.status
+        else:
+            if record.check_in and record.check_out:
+                status = "Present"
+            elif record.check_in and not record.check_out:
+                status = "Absent (No Check-Out)"
+            else:
+                status = "Absent"
+
+        writer.writerow([date_str, check_in_str, check_out_str, status])
 
     return response
+
+
 # @login_required
 # def save_face(request):
 #     if request.method == "POST":
@@ -217,51 +269,58 @@ def help_support(request):
 @login_required
 @csrf_exempt
 def face_add(request):
-    from .models import FaceChangeRequest
-    import os, base64, cv2
-    from django.conf import settings
-    import json
-
     user = request.user
 
-    # Check if there’s a pending request
-    pending_obj = FaceChangeRequest.objects.filter(user=user, status="Pending").first()
-    pending_face = True if pending_obj else False
-    pending_face_url = pending_obj.new_face_path.replace(settings.MEDIA_ROOT, settings.MEDIA_URL) if pending_face else None
+    # Check if user already has a face
+    user_face = UserFace.objects.filter(user=user).first()
+    has_face = True if user_face and user_face.face_image else False
 
     if request.method == "POST":
+        import json
         data = json.loads(request.body)
         img_data = data.get("image_data")
-        if img_data and not pending_face:  # Only allow if no pending
-            pending_dir = os.path.join(settings.MEDIA_ROOT, "pending_faces")
-            os.makedirs(pending_dir, exist_ok=True)
-            pending_path = os.path.join(pending_dir, f"{user.username}_pending.jpg")
+        if img_data:
+            # Prepare image path
+            faces_dir = os.path.join(settings.MEDIA_ROOT, "faces", user.username)
+            os.makedirs(faces_dir, exist_ok=True)
+            img_path = os.path.join(faces_dir, f"{user.username}_1.jpg")
 
             # Decode base64 image
             header, encoded = img_data.split(",", 1)
             img_bytes = base64.b64decode(encoded)
             nparr = np.frombuffer(img_bytes, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            cv2.imwrite(pending_path, img)
+            cv2.imwrite(img_path, img)
 
-            # Create or update pending request
-            FaceChangeRequest.objects.update_or_create(
-                user=user,
-                defaults={"status": "Pending", "new_face_path": pending_path}
-            )
+            if not has_face:
+                # First-time face → save directly to UserFace
+                UserFace.objects.update_or_create(
+                    user=user,
+                    defaults={"face_image": f"faces/{user.username}/{user.username}_1.jpg"}
+                )
+                return JsonResponse({"status": "success", "message": "Face captured successfully!"})
+            else:
+                # Existing user → create/update pending FaceChangeRequest
+                FaceChangeRequest.objects.update_or_create(
+                    user=user,
+                    defaults={"status": "Pending", "new_face_path": img_path}
+                )
+                return JsonResponse({"status": "success", "message": "Face submitted for admin approval."})
 
-            return JsonResponse({"status": "success", "message": "Face submitted for admin approval"})
-
-        return JsonResponse({"status": "error", "message": "Face capture disabled. Pending approval exists."})
+        return JsonResponse({"status": "error", "message": "No image data received."})
 
     # GET request → render template
-    old_face_path = os.path.join(settings.MEDIA_ROOT, "faces", user.username, "1.jpg")
-    old_face_url = old_face_path.replace(settings.MEDIA_ROOT, settings.MEDIA_URL) if os.path.exists(old_face_path) else None
+    old_face_url = user_face.face_image.url if has_face else None
+
+    # Check if there’s a pending change request
+    pending_obj = FaceChangeRequest.objects.filter(user=user, status="Pending").first()
+    pending_face_url = pending_obj.new_face_path.replace(settings.MEDIA_ROOT, settings.MEDIA_URL) if pending_obj else None
 
     return render(request, "face_add.html", {
         "user": user,
         "old_face": old_face_url,
         "pending_face": pending_face_url,
+        "has_face": has_face,
     })
 
 OPENROUTER_API_KEY = "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"  # Store in settings.py for safety
@@ -411,6 +470,7 @@ def login_view(request):
 
     return render(request, "userlogin.html", {"form": form})
 
+@login_required
 def userdash_view(request):
     month = int(request.GET.get('month', datetime.today().month))
     year = int(request.GET.get('year', datetime.today().year))
@@ -420,7 +480,7 @@ def userdash_view(request):
     weeks = [month_days[i:i+7] for i in range(0, len(month_days), 7)]
     day_names = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
 
-    # --- NEW: Fetch approved leaves for the current user ---
+    # --- Fetch approved leaves ---
     approved_leaves = LeaveRequest.objects.filter(
         user=request.user,
         status="Approved",
@@ -428,7 +488,7 @@ def userdash_view(request):
         end_date__year__gte=year
     )
 
-    # Collect all leave days in this month
+    # Collect leave days in this month
     leave_days = set()
     for leave in approved_leaves:
         current_day = leave.start_date
@@ -436,6 +496,43 @@ def userdash_view(request):
             if current_day.month == month:
                 leave_days.add(current_day.day)
             current_day += timedelta(days=1)
+
+    # --- Fetch attendance for this month ---
+    month_start = date(year, month, 1)
+    last_day = calendar.monthrange(year, month)[1]
+    month_end = date(year, month, last_day)
+
+    attendance_qs = Attendance.objects.filter(
+        user=request.user,
+        date__range=(month_start, month_end)
+    )
+
+    day_status_list = []
+    
+    # Total days in month
+    last_day = calendar.monthrange(year, month)[1]
+    
+    for day in range(1, last_day + 1):
+        if day in leave_days:
+            status = "Leave"
+        elif any(att.date.day == day for att in attendance_qs):
+            att_day = next(att for att in attendance_qs if att.date.day == day)
+            if att_day.status == "Present":
+                status = "Present"
+            elif att_day.status == "Checked In":
+                status = "Half-Day"
+            elif att_day.status == "Absent":
+                status = "Absent"
+            elif att_day.status == "Holiday":
+                status = "Holiday"
+            elif att_day.status == "Leave":
+                status = "Leave"
+            else:
+                status = ""
+        else:
+            status = ""  # No attendance recorded
+        day_status_list.append((day, status))
+    
 
     context = {
         "cal_year": year,
@@ -446,7 +543,7 @@ def userdash_view(request):
         "today_month": datetime.today().month,
         "today_year": datetime.today().year,
         "day_names": day_names,
-        "leave_days": leave_days,   # ✅ pass leave days to template
+        "day_status_list": day_status_list,
     }
 
     # If AJAX request, return only the calendar cells
@@ -455,8 +552,8 @@ def userdash_view(request):
         html = render_to_string('calendar_cells.html', context)
         return HttpResponse(html)
 
-    # Normal page render
     return render(request, "userdash.html", {"user": request.user, **context})
+
 
 def logout(request):
     return render(request, "userlogin.html")
@@ -490,46 +587,6 @@ def change_password(request):
         return redirect("change_password")  # or wherever you want
 
     return render(request, 'user_profile.html')
-
-@login_required
-def face_view(request):
-    user = request.user
-
-    # Check if an approved face exists
-    try:
-        approved = FaceChangeRequest.objects.get(user=user, status="Approved")
-        # Use approved face as the main registered face
-        old_face_url = approved.new_face_path.replace(settings.MEDIA_ROOT, settings.MEDIA_URL)
-        face_status = "Face updated ✅"
-        pending_face = False
-    except FaceChangeRequest.DoesNotExist:
-        # Fallback: check the original registered face folder
-        old_face_path = os.path.join(settings.MEDIA_ROOT, f"faces/{user.username}/1.jpg")
-        if os.path.exists(old_face_path):
-            old_face_url = os.path.join(settings.MEDIA_URL, f"faces/{user.username}/1.jpg")
-            face_status = "Registered Face"
-        else:
-            old_face_url = None
-            face_status = "No face registered"
-        pending_face = False
-
-    # Check if there is any pending face request
-    try:
-        pending = FaceChangeRequest.objects.get(user=user, status="Pending")
-        new_face_url = pending.new_face_path.replace(settings.MEDIA_ROOT, settings.MEDIA_URL)
-        face_status = "Pending admin approval"
-        pending_face = True
-    except FaceChangeRequest.DoesNotExist:
-        new_face_url = None
-
-    context = {
-        "user": user,
-        "old_face_url": old_face_url,
-        "new_face_url": new_face_url,
-        "face_status": face_status,
-        "pending_face": pending_face
-    }
-    return render(request, "face_view.html", context)
 
 
 @login_required

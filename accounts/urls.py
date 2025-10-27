@@ -9,6 +9,7 @@ urlpatterns = [
     # Using built-in LoginView
     path('admin/', admin.site.urls),
     
+    
     path("register/", views.register, name="register"),
     path('userlogin/', views.login_view, name='userlogin'),
     
@@ -17,6 +18,7 @@ urlpatterns = [
     path('',views.index, name="home"),
     path('userprofile/', views.userprofile_view, name='userprofile'),
     path("userdash/", views.userdash_view, name="userdash"),
+    
     
     path('face_add/', views.face_add, name='face_add'),
     # path("save_face/", views.save_face, name="save_face"),
