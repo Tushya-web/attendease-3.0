@@ -14,6 +14,7 @@ if os.environ.get('RENDER'):
     DEBUG = False
     
 ALLOWED_HOSTS = ['attendease-rl90.onrender.com']
+
 SECRET_KEY = os.environ.get('SECRET_KEY', '97665b4de43d2bab61ba698612f18347')
 
 AUTH_USER_MODEL = "accounts.CustomUser"
