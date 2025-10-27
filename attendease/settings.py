@@ -10,7 +10,11 @@ os.environ["DEEPFACE_HOME"] = os.path.join(BASE_DIR, "media", "deepface_models")
 
 import os
 
+if os.environ.get('RENDER'):
+    DEBUG = False
+    
 ALLOWED_HOSTS = ['https://attend-ease-backend.onrender.com']
+
 SECRET_KEY = os.environ.get('SECRET_KEY', '97665b4de43d2bab61ba698612f18347')
 
 AUTH_USER_MODEL = "accounts.CustomUser"
