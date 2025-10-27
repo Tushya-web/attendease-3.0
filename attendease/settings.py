@@ -1,18 +1,15 @@
 from pathlib import Path
 import os
+import dj_database_url
 
-
-
-
-# ✅ Force DeepFace to use your custom models folder
 BASE_DIR = Path(__file__).resolve().parent.parent
 os.environ["DEEPFACE_HOME"] = os.path.join(BASE_DIR, "media", "deepface_models")
 
-import os
-
 if os.environ.get('RENDER'):
     DEBUG = False
-    
+else:
+    DEBUG = True
+
 ALLOWED_HOSTS = ['attendease-rl90.onrender.com', 'localhost', '127.0.0.1']
 
 SECRET_KEY = os.environ.get('SECRET_KEY', '97665b4de43d2bab61ba698612f18347')
@@ -29,8 +26,6 @@ SECRET_KEY = 'django-insecure-n6p6cpn-(j5r_beb-019^^1zbeo4v8&nyuk21we*3e#=2buyq8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
 
 # Application definition
 
